@@ -3,6 +3,9 @@ package main
 import (
 	"strconv"
 	"strings"
+
+	"github.com/corani/bantamgo/ast"
+	"github.com/corani/bantamgo/lexer"
 )
 
 func SExpr() *sExpr {
@@ -29,7 +32,7 @@ func (s *sExpr) VisitNumber(value float64) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitAssign(name string, right Expression) {
+func (s *sExpr) VisitAssign(name string, right ast.Expression) {
 	s.sb.WriteString("(write '")
 	s.sb.WriteString(name)
 	s.sb.WriteString("' ")
@@ -37,7 +40,7 @@ func (s *sExpr) VisitAssign(name string, right Expression) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitConditional(condition, thenBranch, elseBranch Expression) {
+func (s *sExpr) VisitConditional(condition, thenBranch, elseBranch ast.Expression) {
 	s.sb.WriteString("(if ")
 	condition.Visit(s)
 	s.sb.WriteString(" ")
@@ -47,7 +50,7 @@ func (s *sExpr) VisitConditional(condition, thenBranch, elseBranch Expression) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitCall(callee Expression, arguments []Expression) {
+func (s *sExpr) VisitCall(callee ast.Expression, arguments []ast.Expression) {
 	s.sb.WriteString("(call ")
 	callee.Visit(s)
 	s.sb.WriteString(" ")
@@ -58,7 +61,7 @@ func (s *sExpr) VisitCall(callee Expression, arguments []Expression) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitPrefix(operator TokenType, right Expression) {
+func (s *sExpr) VisitPrefix(operator lexer.TokenType, right ast.Expression) {
 	s.sb.WriteString("(prefix")
 	s.sb.WriteString(string(operator))
 	s.sb.WriteString(" ")
@@ -66,7 +69,7 @@ func (s *sExpr) VisitPrefix(operator TokenType, right Expression) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitPostfix(left Expression, operator TokenType) {
+func (s *sExpr) VisitPostfix(left ast.Expression, operator lexer.TokenType) {
 	s.sb.WriteString("(postfix")
 	s.sb.WriteString(string(operator))
 	s.sb.WriteString(" ")
@@ -74,7 +77,7 @@ func (s *sExpr) VisitPostfix(left Expression, operator TokenType) {
 	s.sb.WriteString(")")
 }
 
-func (s *sExpr) VisitInfix(left Expression, operator TokenType, right Expression) {
+func (s *sExpr) VisitInfix(left ast.Expression, operator lexer.TokenType, right ast.Expression) {
 	s.sb.WriteString("(")
 	s.sb.WriteString(string(operator))
 	s.sb.WriteString(" ")

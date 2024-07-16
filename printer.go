@@ -3,6 +3,9 @@ package main
 import (
 	"strconv"
 	"strings"
+
+	"github.com/corani/bantamgo/ast"
+	"github.com/corani/bantamgo/lexer"
 )
 
 func Printer() *printer {
@@ -25,7 +28,7 @@ func (p *printer) VisitNumber(value float64) {
 	p.sb.WriteString(strconv.FormatFloat(value, 'f', -1, 64))
 }
 
-func (p *printer) VisitAssign(name string, right Expression) {
+func (p *printer) VisitAssign(name string, right ast.Expression) {
 	p.sb.WriteString("(")
 	p.sb.WriteString(name)
 	p.sb.WriteString(" = ")
@@ -33,7 +36,7 @@ func (p *printer) VisitAssign(name string, right Expression) {
 	p.sb.WriteString(")")
 }
 
-func (p *printer) VisitConditional(condition, thenBranch, elseBranch Expression) {
+func (p *printer) VisitConditional(condition, thenBranch, elseBranch ast.Expression) {
 	p.sb.WriteString("(")
 	condition.Visit(p)
 	p.sb.WriteString(" ? ")
@@ -43,7 +46,7 @@ func (p *printer) VisitConditional(condition, thenBranch, elseBranch Expression)
 	p.sb.WriteString(")")
 }
 
-func (p *printer) VisitCall(callee Expression, arguments []Expression) {
+func (p *printer) VisitCall(callee ast.Expression, arguments []ast.Expression) {
 	callee.Visit(p)
 	p.sb.WriteString("(")
 	for i, arg := range arguments {
@@ -55,21 +58,21 @@ func (p *printer) VisitCall(callee Expression, arguments []Expression) {
 	p.sb.WriteString(")")
 }
 
-func (p *printer) VisitPrefix(operator TokenType, right Expression) {
+func (p *printer) VisitPrefix(operator lexer.TokenType, right ast.Expression) {
 	p.sb.WriteString("(")
 	p.sb.WriteString(string(operator))
 	right.Visit(p)
 	p.sb.WriteString(")")
 }
 
-func (p *printer) VisitPostfix(left Expression, operator TokenType) {
+func (p *printer) VisitPostfix(left ast.Expression, operator lexer.TokenType) {
 	p.sb.WriteString("(")
 	left.Visit(p)
 	p.sb.WriteString(string(operator))
 	p.sb.WriteString(")")
 }
 
-func (p *printer) VisitInfix(left Expression, operator TokenType, right Expression) {
+func (p *printer) VisitInfix(left ast.Expression, operator lexer.TokenType, right ast.Expression) {
 	p.sb.WriteString("(")
 	left.Visit(p)
 	p.sb.WriteString(" ")

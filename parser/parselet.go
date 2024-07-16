@@ -1,28 +1,33 @@
-package main
+package parser
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/corani/bantamgo/ast"
+	"github.com/corani/bantamgo/lexer"
+)
 
 type PrefixParselet interface {
-	Parse(p *parser, t Token) (Expression, error)
+	Parse(p *parser, t lexer.Token) (ast.Expression, error)
 }
 
-type prefixParseletFunc func(p *parser, t Token) (Expression, error)
+type prefixParseletFunc func(p *parser, t lexer.Token) (ast.Expression, error)
 
-func (p prefixParseletFunc) Parse(parser *parser, t Token) (Expression, error) {
+func (p prefixParseletFunc) Parse(parser *parser, t lexer.Token) (ast.Expression, error) {
 	return p(parser, t)
 }
 
 type InfixParselet interface {
-	Parse(p *parser, left Expression, t Token) (Expression, error)
+	Parse(p *parser, left ast.Expression, t lexer.Token) (ast.Expression, error)
 	Precedence() Precedence
 }
 
 type infixParselet struct {
-	parse func(p *parser, left Expression, t Token) (Expression, error)
+	parse func(p *parser, left ast.Expression, t lexer.Token) (ast.Expression, error)
 	prec  Precedence
 }
 
-func (i *infixParselet) Parse(parser *parser, left Expression, t Token) (Expression, error) {
+func (i *infixParselet) Parse(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
 	return i.parse(parser, left, t)
 }
 
@@ -33,16 +38,16 @@ func (i *infixParselet) Precedence() Precedence {
 // ----- NAME PARSELET -----
 
 func NameParselet() PrefixParselet {
-	return prefixParseletFunc(func(parser *parser, t Token) (Expression, error) {
-		return NameExpression(t.Text), nil
+	return prefixParseletFunc(func(parser *parser, t lexer.Token) (ast.Expression, error) {
+		return ast.NameExpression(t.Text), nil
 	})
 }
 
 // ----- NUMBER PARSELET -----
 
 func NumberParselet() PrefixParselet {
-	return prefixParseletFunc(func(parser *parser, t Token) (Expression, error) {
-		return NumberExpression(t.Text)
+	return prefixParseletFunc(func(parser *parser, t lexer.Token) (ast.Expression, error) {
+		return ast.NumberExpression(t.Text)
 	})
 }
 
@@ -50,14 +55,14 @@ func NumberParselet() PrefixParselet {
 
 func AssignParselet() InfixParselet {
 	return &infixParselet{
-		parse: func(parser *parser, left Expression, t Token) (Expression, error) {
+		parse: func(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
 			right, err := parser.parseExpression(PrecAssignment - 1)
 			if err != nil {
 				return nil, err
 			}
 
-			if name, ok := left.(*nameExpression); ok {
-				return AssignExpression(name.Name, right), nil
+			if name, ok := left.(*ast.NameExpressionNode); ok {
+				return ast.AssignExpression(name.Name, right), nil
 			}
 
 			return nil, fmt.Errorf("the left-hand of an assignment must be a name")
@@ -70,20 +75,20 @@ func AssignParselet() InfixParselet {
 
 func ConditionalParselet() InfixParselet {
 	return &infixParselet{
-		parse: func(parser *parser, left Expression, t Token) (Expression, error) {
+		parse: func(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
 			thenBranch, err := parser.parseExpression(0)
 			if err != nil {
 				return nil, err
 			}
 
-			parser.expect(TypeColon)
+			parser.expect(lexer.TypeColon)
 
 			elseBranch, err := parser.parseExpression(PrecConditional - 1)
 			if err != nil {
 				return nil, err
 			}
 
-			return ConditionalExpression(left, thenBranch, elseBranch), nil
+			return ast.ConditionalExpression(left, thenBranch, elseBranch), nil
 		},
 		prec: PrecConditional,
 	}
@@ -92,13 +97,13 @@ func ConditionalParselet() InfixParselet {
 // ----- GROUP PARSELET -----
 
 func GroupParselet() PrefixParselet {
-	return prefixParseletFunc(func(parser *parser, t Token) (Expression, error) {
+	return prefixParseletFunc(func(parser *parser, t lexer.Token) (ast.Expression, error) {
 		expr, err := parser.parseExpression(0)
 		if err != nil {
 			return nil, err
 		}
 
-		parser.expect(TypeRParen)
+		parser.expect(lexer.TypeRParen)
 
 		return expr, nil
 	})
@@ -108,10 +113,10 @@ func GroupParselet() PrefixParselet {
 
 func CallParselet() InfixParselet {
 	return &infixParselet{
-		parse: func(parser *parser, left Expression, t Token) (Expression, error) {
-			var args []Expression
+		parse: func(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
+			var args []ast.Expression
 
-			if !parser.match(TypeRParen) {
+			if !parser.match(lexer.TypeRParen) {
 				for {
 					arg, err := parser.parseExpression(0)
 					if err != nil {
@@ -120,15 +125,15 @@ func CallParselet() InfixParselet {
 
 					args = append(args, arg)
 
-					if !parser.match(TypeComma) {
+					if !parser.match(lexer.TypeComma) {
 						break
 					}
 				}
 
-				parser.expect(TypeRParen)
+				parser.expect(lexer.TypeRParen)
 			}
 
-			return CallExpression(left, args), nil
+			return ast.CallExpression(left, args), nil
 		},
 		prec: PrecCall,
 	}
@@ -137,13 +142,13 @@ func CallParselet() InfixParselet {
 // ----- PREFIX OPERATOR PARSELET -----
 
 func PrefixOperatorParselet(prec Precedence) PrefixParselet {
-	return prefixParseletFunc(func(parser *parser, t Token) (Expression, error) {
+	return prefixParseletFunc(func(parser *parser, t lexer.Token) (ast.Expression, error) {
 		right, err := parser.parseExpression(prec)
 		if err != nil {
 			return nil, err
 		}
 
-		return PrefixExpression(t.Type, right), nil
+		return ast.PrefixExpression(t.Type, right), nil
 	})
 }
 
@@ -151,8 +156,8 @@ func PrefixOperatorParselet(prec Precedence) PrefixParselet {
 
 func PostfixOperatorParselet(prec Precedence) InfixParselet {
 	return &infixParselet{
-		parse: func(parser *parser, left Expression, t Token) (Expression, error) {
-			return PostfixExpression(left, t.Type), nil
+		parse: func(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
+			return ast.PostfixExpression(left, t.Type), nil
 		},
 		prec: prec,
 	}
@@ -162,7 +167,7 @@ func PostfixOperatorParselet(prec Precedence) InfixParselet {
 
 func InfixOperatorParselet(prec Precedence, assoc Associativity) InfixParselet {
 	return &infixParselet{
-		parse: func(parser *parser, left Expression, t Token) (Expression, error) {
+		parse: func(parser *parser, left ast.Expression, t lexer.Token) (ast.Expression, error) {
 			// To handle right-associative operators like "^", we allow a slightly
 			// lower precedence when parsing the right-hand side. This will let a
 			// parselet with the same precedence appear on the right, which will then
@@ -178,7 +183,7 @@ func InfixOperatorParselet(prec Precedence, assoc Associativity) InfixParselet {
 				return nil, err
 			}
 
-			return InfixExpression(left, t.Type, right), nil
+			return ast.InfixExpression(left, t.Type, right), nil
 		},
 		prec: prec,
 	}

@@ -3,6 +3,8 @@ package main
 import (
 	"testing"
 
+	"github.com/corani/bantamgo/lexer"
+	"github.com/corani/bantamgo/parser"
 	"github.com/stretchr/testify/require"
 )
 
@@ -57,8 +59,8 @@ func Test(t *testing.T) {
 
 			rq := require.New(t)
 
-			lexer := Lexer(tc.in)
-			parser := Parser(lexer)
+			lexer := lexer.New(tc.in)
+			parser := parser.New(lexer)
 			printer := Printer()
 
 			expr, err := parser.ParseExpression()

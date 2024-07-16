@@ -1,13 +1,13 @@
-package main
+package lexer
 
-type lexer struct {
+type Lexer struct {
 	text        string
 	index       int
 	punctuators map[rune]TokenType
 }
 
-func Lexer(text string) *lexer {
-	result := &lexer{
+func New(text string) *Lexer {
+	result := &Lexer{
 		text:        text,
 		index:       0,
 		punctuators: make(map[rune]TokenType),
@@ -22,11 +22,11 @@ func Lexer(text string) *lexer {
 	return result
 }
 
-func (l *lexer) HasNext() bool {
+func (l *Lexer) HasNext() bool {
 	return l.index < len(l.text)
 }
 
-func (l *lexer) Next() Token {
+func (l *Lexer) Next() Token {
 	for l.index < len(l.text) {
 		c := rune(l.text[l.index])
 

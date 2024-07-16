@@ -3,6 +3,9 @@ package main
 import (
 	"strconv"
 	"strings"
+
+	"github.com/corani/bantamgo/ast"
+	"github.com/corani/bantamgo/lexer"
 )
 
 func TreePrinter() *treePrinter {
@@ -39,7 +42,7 @@ func (t *treePrinter) VisitNumber(value float64) {
 	t.sb.WriteString("\n")
 }
 
-func (t *treePrinter) VisitAssign(name string, right Expression) {
+func (t *treePrinter) VisitAssign(name string, right ast.Expression) {
 	t.writeIndent()
 	t.sb.WriteString("assign\n")
 	t.indent++
@@ -51,7 +54,7 @@ func (t *treePrinter) VisitAssign(name string, right Expression) {
 	t.indent--
 }
 
-func (t *treePrinter) VisitConditional(condition, thenBranch, elseBranch Expression) {
+func (t *treePrinter) VisitConditional(condition, thenBranch, elseBranch ast.Expression) {
 	t.writeIndent()
 	t.sb.WriteString("if\n")
 	t.indent++
@@ -61,7 +64,7 @@ func (t *treePrinter) VisitConditional(condition, thenBranch, elseBranch Express
 	t.indent--
 }
 
-func (t *treePrinter) VisitCall(callee Expression, arguments []Expression) {
+func (t *treePrinter) VisitCall(callee ast.Expression, arguments []ast.Expression) {
 	t.writeIndent()
 	t.sb.WriteString("call\n")
 	t.indent++
@@ -72,7 +75,7 @@ func (t *treePrinter) VisitCall(callee Expression, arguments []Expression) {
 	t.indent--
 }
 
-func (t *treePrinter) VisitPrefix(operator TokenType, right Expression) {
+func (t *treePrinter) VisitPrefix(operator lexer.TokenType, right ast.Expression) {
 	t.writeIndent()
 	t.sb.WriteString("prefix '")
 	t.sb.WriteString(string(operator))
@@ -82,7 +85,7 @@ func (t *treePrinter) VisitPrefix(operator TokenType, right Expression) {
 	t.indent--
 }
 
-func (t *treePrinter) VisitPostfix(left Expression, operator TokenType) {
+func (t *treePrinter) VisitPostfix(left ast.Expression, operator lexer.TokenType) {
 	t.writeIndent()
 	t.sb.WriteString("postfix '")
 	t.sb.WriteString(string(operator))
@@ -92,7 +95,7 @@ func (t *treePrinter) VisitPostfix(left Expression, operator TokenType) {
 	t.indent--
 }
 
-func (t *treePrinter) VisitInfix(left Expression, operator TokenType, right Expression) {
+func (t *treePrinter) VisitInfix(left ast.Expression, operator lexer.TokenType, right ast.Expression) {
 	t.writeIndent()
 	t.sb.WriteString("infix '")
 	t.sb.WriteString(string(operator))

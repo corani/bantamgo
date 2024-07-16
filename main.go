@@ -2,14 +2,17 @@ package main
 
 import (
 	"log"
+
+	"github.com/corani/bantamgo/lexer"
+	"github.com/corani/bantamgo/parser"
 )
 
 func main() {
 	input := "a = 1.1 + c * d ^ e - f / g"
 	log.Println("input:", input)
 
-	lexer := Lexer(input)
-	parser := Parser(lexer)
+	lexer := lexer.New(input)
+	parser := parser.New(lexer)
 
 	expr, err := parser.ParseExpression()
 	if err != nil {

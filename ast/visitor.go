@@ -1,4 +1,6 @@
-package main
+package ast
+
+import "github.com/corani/bantamgo/lexer"
 
 type Visitor interface {
 	VisitName(name string)
@@ -6,7 +8,7 @@ type Visitor interface {
 	VisitAssign(name string, right Expression)
 	VisitConditional(condition, thenBranch, elseBranch Expression)
 	VisitCall(callee Expression, arguments []Expression)
-	VisitPrefix(operator TokenType, right Expression)
-	VisitPostfix(left Expression, operator TokenType)
-	VisitInfix(left Expression, operator TokenType, right Expression)
+	VisitPrefix(operator lexer.TokenType, right Expression)
+	VisitPostfix(left Expression, operator lexer.TokenType)
+	VisitInfix(left Expression, operator lexer.TokenType, right Expression)
 }
