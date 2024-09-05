@@ -1,4 +1,4 @@
-package main
+package printer
 
 import (
 	"strconv"
@@ -21,9 +21,13 @@ type printer struct {
 }
 
 func (p *printer) VisitBlock(expressions []ast.Expression) {
-	for _, expr := range expressions {
+	for i, expr := range expressions {
+		if i > 0 {
+			p.sb.WriteByte(';')
+			p.sb.WriteByte(' ')
+		}
+
 		expr.Visit(p)
-		p.sb.WriteString("; ")
 	}
 }
 

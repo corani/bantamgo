@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 
+	"github.com/corani/bantamgo/evaluator"
 	"github.com/corani/bantamgo/lexer"
 	"github.com/corani/bantamgo/parser"
+	"github.com/corani/bantamgo/printer"
 )
 
 func main() {
@@ -23,6 +25,13 @@ func main() {
 	`
 	log.Println("input:", input)
 
+	// TODO(daniel): support defining functions, so the built-in `pow` can
+	// be replaced with something like `pow = (x, y) => x^y` (syntax tbd).
+	// TODO(daniel): support comparison operators ('<=', '>=', '==', '!=', etc.)
+	// This will require changes to the lexer to distinguish them from the
+	// existing single-character operators (e.g. '=' vs '==' and '!' vs '!=').
+	// Alternatively we could use 'eq', 'ne', 'lt', 'le', 'gt', 'ge' or similar
+	// and punt it to the parser, though that's probably a bad idea.
 	lexer := lexer.New(input)
 	parser := parser.New(lexer)
 
@@ -31,21 +40,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	printer := Printer()
-	expr.Visit(printer)
-	log.Println("parsed:", printer.String())
+	pprint := printer.Printer()
+	expr.Visit(pprint)
+	log.Println("parsed:", pprint.String())
 
-	sexpr := SExpr()
+	sexpr := printer.SExpr()
 	expr.Visit(sexpr)
 	log.Println("s-expr:", sexpr.String())
 
-	tree := TreePrinter()
+	tree := printer.TreePrinter()
 	expr.Visit(tree)
 	log.Print("tree:\n" + tree.String())
 
 	// TODO: type-checking
 
-	eval := Eval()
+	eval := evaluator.New()
 	expr.Visit(eval)
 	log.Println("answer:", eval.Answer())
 

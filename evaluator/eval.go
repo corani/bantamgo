@@ -1,4 +1,4 @@
-package main
+package evaluator
 
 import (
 	"errors"
@@ -28,7 +28,7 @@ type Symbol struct {
 	AsFunction Function
 }
 
-func Eval() *eval {
+func New() *eval {
 	res := &eval{
 		stack:  make([]Symbol, 0),
 		locals: make(map[string]Symbol),

@@ -5,6 +5,7 @@ import (
 
 	"github.com/corani/bantamgo/lexer"
 	"github.com/corani/bantamgo/parser"
+	"github.com/corani/bantamgo/printer"
 	"github.com/stretchr/testify/require"
 )
 
@@ -51,6 +52,10 @@ func Test(t *testing.T) {
 		{"a + (b + c) + d", "((a + (b + c)) + d)"},
 		{"a ^ (b + c)", "(a ^ (b + c))"},
 		{"(!a)!", "((!a)!)"},
+
+		// Blocks (semi-colons are optional)
+		{"a b c", "a; b; c"},
+		{"a; b c;", "a; b; c"},
 	}
 
 	for _, tc := range tt {
@@ -61,14 +66,14 @@ func Test(t *testing.T) {
 
 			lexer := lexer.New(tc.in)
 			parser := parser.New(lexer)
-			printer := Printer()
+			pprint := printer.Printer()
 
 			expr, err := parser.ParseExpression()
 			rq.NoError(err)
 
-			expr.Visit(printer)
+			expr.Visit(pprint)
 
-			rq.Equal(tc.out, printer.String())
+			rq.Equal(tc.out, pprint.String())
 		})
 	}
 }
