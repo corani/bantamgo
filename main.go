@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/corani/bantamgo/evaluator"
 	"github.com/corani/bantamgo/lexer"
@@ -10,19 +11,12 @@ import (
 )
 
 func main() {
-	// input := "a = 1.1 + c * d ^ e - f / g"
-	// input := "PI*E"
-	// input := "pow(2, 4)*PI+4!/undefined()+pow"
-	// input := `
-	// 	PI = 3.14159265358979323846
-	// 	E = 2.71828182845904523536
-	// 	PI * E
-	// `
-	input := `
-		PI = 3.14159265358979323846
-		E = 2.71828182845904523536
-		pow(PI, 2) + pow(E, 2);
-	`
+	if len(os.Args) != 2 {
+		log.Fatal("usage: bantamgo <input>")
+	}
+
+	input := os.Args[1]
+
 	log.Println("input:", input)
 
 	// TODO(daniel): support defining functions, so the built-in `pow` can

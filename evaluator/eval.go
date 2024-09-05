@@ -142,6 +142,8 @@ func (e *eval) VisitInfix(left ast.Expression, operator lexer.TokenType, right a
 		e.pushNumber(lhs * rhs)
 	case lexer.TypeSlash:
 		e.pushNumber(lhs / rhs)
+	case lexer.TypeCaret:
+		e.pushNumber(math.Pow(lhs, rhs))
 	}
 }
 
