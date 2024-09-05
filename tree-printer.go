@@ -28,6 +28,16 @@ func (t *treePrinter) writeIndent() {
 	t.sb.WriteString(strings.Repeat("  ", t.indent))
 }
 
+func (t *treePrinter) VisitBlock(expressions []ast.Expression) {
+	t.writeIndent()
+	t.sb.WriteString("block\n")
+	t.indent++
+	for _, expr := range expressions {
+		expr.Visit(t)
+	}
+	t.indent--
+}
+
 func (t *treePrinter) VisitName(name string) {
 	t.writeIndent()
 	t.sb.WriteString("name '")

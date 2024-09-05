@@ -20,6 +20,13 @@ type printer struct {
 	sb *strings.Builder
 }
 
+func (p *printer) VisitBlock(expressions []ast.Expression) {
+	for _, expr := range expressions {
+		expr.Visit(p)
+		p.sb.WriteString("; ")
+	}
+}
+
 func (p *printer) VisitName(name string) {
 	p.sb.WriteString(name)
 }

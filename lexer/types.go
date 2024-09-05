@@ -16,6 +16,7 @@ const (
 	TypeBang     TokenType = '!'
 	TypeQuestion TokenType = '?'
 	TypeColon    TokenType = ':'
+	TypeSemi     TokenType = ';'
 	TypeEOF      TokenType = -1
 	TypeName     TokenType = -2
 	TypeNumber   TokenType = -3
@@ -36,6 +37,7 @@ func TokenTypes() []TokenType {
 		TypeBang,
 		TypeQuestion,
 		TypeColon,
+		TypeSemi,
 		TypeEOF,
 		TypeName,
 		TypeNumber,

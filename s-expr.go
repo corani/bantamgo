@@ -20,6 +20,15 @@ type sExpr struct {
 	sb *strings.Builder
 }
 
+func (s *sExpr) VisitBlock(expressions []ast.Expression) {
+	s.sb.WriteString("(block ")
+	for _, expr := range expressions {
+		expr.Visit(s)
+		s.sb.WriteString(" ")
+	}
+	s.sb.WriteString(")")
+}
+
 func (s *sExpr) VisitName(name string) {
 	s.sb.WriteString("(read '")
 	s.sb.WriteString(name)

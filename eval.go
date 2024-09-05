@@ -34,9 +34,6 @@ func Eval() *eval {
 		locals: make(map[string]Symbol),
 	}
 
-	res.defineNumber("PI", 3.14159265358979323846)
-	res.defineNumber("E", 2.71828182845904523536)
-
 	res.defineFunction("pow", func(args []float64) float64 {
 		if len(args) != 2 {
 			return 0
@@ -55,6 +52,12 @@ type eval struct {
 
 func (e *eval) Answer() float64 {
 	return e.popNumber()
+}
+
+func (e *eval) VisitBlock(expressions []ast.Expression) {
+	for _, expr := range expressions {
+		expr.Visit(e)
+	}
 }
 
 func (e *eval) VisitName(name string) {

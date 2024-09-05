@@ -64,7 +64,26 @@ func (p *parser) registerInfix(tt lexer.TokenType, parselet InfixParselet) {
 }
 
 func (p *parser) ParseExpression() (ast.Expression, error) {
-	return p.parseExpression(0)
+	return p.parseBlock()
+}
+
+func (p *parser) parseBlock() (ast.Expression, error) {
+	var statements []ast.Expression
+
+	for p.lookAhead(0).Type != lexer.TypeEOF {
+		statement, err := p.parseExpression(0)
+		if err != nil {
+			return nil, err
+		}
+
+		statements = append(statements, statement)
+
+		if p.lookAhead(0).Type == lexer.TypeSemi {
+			p.consume()
+		}
+	}
+
+	return ast.BlockExpression(statements), nil
 }
 
 func (p *parser) parseExpression(precedence Precedence) (ast.Expression, error) {

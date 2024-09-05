@@ -10,6 +10,20 @@ type Expression interface {
 	Visit(v Visitor)
 }
 
+// ----- BLOCK EXPRESSION -----
+
+func BlockExpression(expressions []Expression) *BlockExpressionNode {
+	return &BlockExpressionNode{Expressions: expressions}
+}
+
+type BlockExpressionNode struct {
+	Expressions []Expression
+}
+
+func (e *BlockExpressionNode) Visit(v Visitor) {
+	v.VisitBlock(e.Expressions)
+}
+
 // ----- NAME EXPRESSION -----
 
 func NameExpression(name string) *NameExpressionNode {

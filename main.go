@@ -10,15 +10,19 @@ import (
 func main() {
 	// input := "a = 1.1 + c * d ^ e - f / g"
 	// input := "PI*E"
-	input := "pow(2, 4)*PI+4!/undefined()+pow"
+	// input := "pow(2, 4)*PI+4!/undefined()+pow"
+	// input := `
+	// 	PI = 3.14159265358979323846
+	// 	E = 2.71828182845904523536
+	// 	PI * E
+	// `
+	input := `
+		PI = 3.14159265358979323846
+		E = 2.71828182845904523536
+		pow(PI, 2) + pow(E, 2);
+	`
 	log.Println("input:", input)
 
-	// TODO(daniel): support multiple statements, so you can do something like:
-	// a = 3;
-	// b = 4;
-	// pow(a, 2) + pow(b, 2);
-	//
-	// ==> 25
 	lexer := lexer.New(input)
 	parser := parser.New(lexer)
 

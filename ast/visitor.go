@@ -3,6 +3,7 @@ package ast
 import "github.com/corani/bantamgo/lexer"
 
 type Visitor interface {
+	VisitBlock(expressions []Expression)
 	VisitName(name string)
 	VisitNumber(value float64)
 	VisitAssign(name string, right Expression)
